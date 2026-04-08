@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { DroppablePage } from "../pages/DroppablePage";
+import { DroppablePage } from "../pages/Droppable.page";
 
 test.describe("Droppable Functionality", () => {
   let droppablePage: DroppablePage;
