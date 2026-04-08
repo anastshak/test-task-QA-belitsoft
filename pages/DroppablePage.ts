@@ -6,19 +6,18 @@ export class DroppablePage {
   // tabs
   readonly simpleTab: Locator;
 
-  // tab elements
+  // simple tab elements
   readonly simpleTabContainer: Locator;
-  readonly dragElement: Locator;
-  readonly dropZone: Locator;
+  readonly simpleDragElement: Locator;
+  readonly simpleDropZone: Locator;
 
   constructor(page: Page) {
     this.page = page;
+
     this.simpleTab = page.locator("#droppableExample-tab-simple");
-
     this.simpleTabContainer = page.locator("#simpleDropContainer");
-
-    this.dragElement = this.simpleTabContainer.locator("#draggable");
-    this.dropZone = this.simpleTabContainer.locator("#droppable");
+    this.simpleDragElement = this.simpleTabContainer.locator("#draggable");
+    this.simpleDropZone = this.simpleTabContainer.locator("#droppable");
   }
 
   async open() {
@@ -29,7 +28,7 @@ export class DroppablePage {
     await this.simpleTab.click();
   }
 
-  async dragAndDrop() {
-    await this.dragElement.dragTo(this.dropZone);
+  async simpleDragAndDrop() {
+    await this.simpleDragElement.dragTo(this.simpleDropZone);
   }
 }
