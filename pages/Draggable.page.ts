@@ -1,0 +1,64 @@
+import { Locator, Page } from "@playwright/test";
+
+export class DraggablePage {
+  readonly page: Page;
+
+  // tabs
+  readonly simpleTab: Locator;
+  readonly axisTab: Locator;
+  readonly containerTab: Locator;
+  readonly cursorTab: Locator;
+
+  // simple tab elements
+  readonly simpleDragElement: Locator;
+
+  // axis restricted tab elements
+
+  // container restricted tab elements
+
+  // cursor style tab elements
+
+  constructor(page: Page) {
+    this.page = page;
+
+    this.simpleTab = page.locator("#draggableExample-tab-simple");
+    this.simpleDragElement = page.locator("#dragBox");
+
+    this.axisTab = page.locator("#draggableExample-tab-axisRestriction");
+
+    this.containerTab = page.locator(
+      "#draggableExample-tab-containerRestriction",
+    );
+
+    this.cursorTab = page.locator("#draggableExample-tab-cursorStyle");
+  }
+
+  async open() {
+    await this.page.goto("/dragabble");
+  }
+
+  // helper
+  async dragWithMouse(element: Locator, x: number, y: number) {
+    const box = await element.boundingBox();
+    if (!box) throw new Error("Element not found");
+
+    const startX = box.x + box.width / 2;
+    const startY = box.y + box.height / 2;
+
+    await this.page.mouse.move(startX, startY);
+    await this.page.mouse.down();
+    await this.page.waitForTimeout(100);
+    await this.page.mouse.move(startX + x, startY + y, { steps: 30 });
+    await this.page.waitForTimeout(50);
+    await this.page.mouse.up();
+  }
+
+  /* simple tab actions */
+  async openSimpleTab() {
+    await this.simpleTab.click();
+  }
+
+  async dragSimple(x: number, y: number) {
+    await this.dragWithMouse(this.simpleDragElement, x, y);
+  }
+}
