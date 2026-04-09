@@ -17,6 +17,10 @@ export class DraggablePage {
   readonly dragYElement: Locator;
 
   // container restricted tab elements
+  readonly containerWrapper: Locator;
+  readonly containerDragElement: Locator;
+  readonly containerParentWrapper: Locator;
+  readonly textDragElement: Locator;
 
   // cursor style tab elements
 
@@ -33,6 +37,13 @@ export class DraggablePage {
     this.containerTab = page.locator(
       "#draggableExample-tab-containerRestriction",
     );
+    this.containerWrapper = page.locator("#containmentWrapper");
+    this.containerDragElement = this.containerWrapper.locator(".draggable");
+    this.containerParentWrapper = page
+      .locator("#draggableExample-tabpane-containerRestriction")
+      .locator(".draggable");
+    this.textDragElement =
+      this.containerParentWrapper.locator(".ui-widget-header ");
 
     this.cursorTab = page.locator("#draggableExample-tab-cursorStyle");
   }
@@ -46,8 +57,8 @@ export class DraggablePage {
     const box = await element.boundingBox();
     if (!box) throw new Error("Element not found");
 
-    const startX = box.x + box.width / 2;
-    const startY = box.y + box.height / 2;
+    const startX = box.x + 10;
+    const startY = box.y + 10;
 
     await this.page.mouse.move(startX, startY);
     await this.page.mouse.down();
@@ -77,5 +88,18 @@ export class DraggablePage {
 
   async dragY(x: number, y: number) {
     await this.dragWithMouse(this.dragYElement, x, y);
+  }
+
+  /* container restricted tab actions */
+  async openContainerTab() {
+    await this.containerTab.click();
+  }
+
+  async dragWithContainer(x: number, y: number) {
+    await this.dragWithMouse(this.containerDragElement, x, y);
+  }
+
+  async dragOnlyText(x: number, y: number) {
+    await this.dragWithMouse(this.textDragElement, x, y);
   }
 }

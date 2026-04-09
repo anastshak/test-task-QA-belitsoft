@@ -64,4 +64,32 @@ test.describe("Draggable Functionality", () => {
       expect(after!.y).toBeCloseTo(before!.y, 0);
     });
   });
+
+  test.describe("Container Restricted Tab", () => {
+    test.beforeEach(async () => {
+      await draggablePage.openContainerTab();
+    });
+
+    test("First box: should move with parent container", async () => {
+      const container = await draggablePage.containerWrapper.boundingBox();
+
+      await draggablePage.dragWithContainer(500, 500);
+
+      const after = await draggablePage.containerDragElement.boundingBox();
+
+      expect(after!.x).toBeLessThanOrEqual(container!.x + container!.width);
+      expect(after!.y).toBeLessThanOrEqual(container!.y + container!.height);
+    });
+
+    test("Second box: only text should move inside container", async () => {
+      const before = await draggablePage.textDragElement.boundingBox();
+
+      await draggablePage.dragOnlyText(100, 100);
+
+      const after = await draggablePage.textDragElement.boundingBox();
+
+      expect(after!.x).toBeGreaterThan(before!.x);
+      expect(after!.y).toBeGreaterThan(before!.y);
+    });
+  });
 });
