@@ -24,6 +24,7 @@ export class DroppablePage {
   readonly simpleTab: Locator;
   readonly acceptTab: Locator;
   readonly preventTab: Locator;
+  readonly revertTab: Locator;
 
   // simple tab elements
   readonly simpleTabContainer: Locator;
@@ -43,6 +44,12 @@ export class DroppablePage {
   readonly innerNotGreedyDropZone: Locator;
   readonly outerGreedyDropZone: Locator;
   readonly innerGreedyDropZone: Locator;
+
+  // revert tab elements
+  readonly revertTabContainer: Locator;
+  readonly revertDragElement: Locator;
+  readonly notRevertDragElement: Locator;
+  readonly revertDropZone: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -72,10 +79,46 @@ export class DroppablePage {
     this.innerGreedyDropZone = this.outerGreedyDropZone.locator(
       "#greedyDropBoxInner",
     );
+
+    this.revertTab = page.locator("#droppableExample-tab-revertable");
+    this.revertTabContainer = page.locator("#revertableDropContainer");
+    this.revertDragElement = this.revertTabContainer.locator("#revertable");
+    this.notRevertDragElement =
+      this.revertTabContainer.locator("#notRevertable");
+    this.revertDropZone = this.revertTabContainer.locator("#droppable");
   }
 
   async open() {
     await this.page.goto("/droppable");
+  }
+
+  /* helper */
+  async dragWithMouse(
+    source: Locator,
+    target: Locator,
+    position: "center" | "top-left" = "center",
+  ) {
+    const sourceBox = await source.boundingBox();
+    const targetBox = await target.boundingBox();
+
+    if (!sourceBox || !targetBox) throw new Error("Elements not found");
+
+    const startX = sourceBox.x + sourceBox.width / 2;
+    const startY = sourceBox.y + sourceBox.height / 2;
+
+    let endX = targetBox.x + targetBox.width / 2;
+    let endY = targetBox.y + targetBox.height / 2;
+
+    if (position === "top-left") {
+      endX = targetBox.x + 20;
+      endY = targetBox.y + 20;
+    }
+
+    await this.page.mouse.move(startX, startY);
+    await this.page.mouse.down();
+    await this.page.waitForTimeout(100);
+    await this.page.mouse.move(endX, endY, { steps: 10 });
+    await this.page.mouse.up();
   }
 
   /* simple tab actions */
@@ -84,18 +127,7 @@ export class DroppablePage {
   }
 
   async simpleDragAndDrop() {
-    // works unstable (try to drop to the center manually)
-    // await this.simpleDragElement.dragTo(this.simpleDropZone);
-
-    const box = await this.simpleDropZone.boundingBox();
-    if (!box) throw new Error("Drop zone not found");
-
-    await this.simpleDragElement.dragTo(this.simpleDropZone, {
-      targetPosition: {
-        x: box.width / 2,
-        y: box.height / 2,
-      },
-    });
+    await this.dragWithMouse(this.simpleDragElement, this.simpleDropZone);
   }
 
   /* accept tab actions */
@@ -104,11 +136,11 @@ export class DroppablePage {
   }
 
   async acceptDragAndDrop() {
-    await this.acceptDragElement.dragTo(this.acceptDropZone);
+    await this.dragWithMouse(this.acceptDragElement, this.acceptDropZone);
   }
 
   async notAcceptDragAndDrop() {
-    await this.notAcceptDragElement.dragTo(this.acceptDropZone);
+    await this.dragWithMouse(this.notAcceptDragElement, this.acceptDropZone);
   }
 
   /* prevent propagation tab */
@@ -117,18 +149,42 @@ export class DroppablePage {
   }
 
   async outerNotGreedyDragAndDrop() {
-    await this.preventDragElement.dragTo(this.outerNotGreedyDropZone);
+    await this.dragWithMouse(
+      this.preventDragElement,
+      this.outerNotGreedyDropZone,
+      "top-left",
+    );
   }
 
   async innerNotGreedyDragAndDrop() {
-    await this.preventDragElement.dragTo(this.innerNotGreedyDropZone);
+    await this.dragWithMouse(
+      this.preventDragElement,
+      this.innerNotGreedyDropZone,
+    );
   }
 
   async outerGreedyDragAndDrop() {
-    await this.preventDragElement.dragTo(this.outerGreedyDropZone);
+    await this.dragWithMouse(
+      this.preventDragElement,
+      this.outerGreedyDropZone,
+      "top-left",
+    );
   }
 
   async innerGreedyDragAndDrop() {
-    await this.preventDragElement.dragTo(this.innerGreedyDropZone);
+    await this.dragWithMouse(this.preventDragElement, this.innerGreedyDropZone);
+  }
+
+  /* revert draggable tab */
+  async openRevertTab() {
+    await this.revertTab.click();
+  }
+
+  async revertDragAndDrop() {
+    await this.dragWithMouse(this.revertDragElement, this.revertDropZone);
+  }
+
+  async notRevertDragAndDrop() {
+    await this.dragWithMouse(this.notRevertDragElement, this.revertDropZone);
   }
 }

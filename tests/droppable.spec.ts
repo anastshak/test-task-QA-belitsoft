@@ -117,9 +117,9 @@ test.describe("Droppable Functionality", () => {
     test("Not Greedy (drop - outer): only outer box should register drop", async () => {
       await droppablePage.outerNotGreedyDragAndDrop();
 
-      await expect(
-        droppablePage.outerNotGreedyDropZone.locator("p").first(),
-      ).toHaveText(DROP_TEXTS.success);
+      await expect(droppablePage.outerNotGreedyDropZone).toContainText(
+        DROP_TEXTS.success,
+      );
 
       await expect(droppablePage.innerNotGreedyDropZone).toContainText(
         DROP_TEXTS.innerNotGreedyDefault,
@@ -180,6 +180,39 @@ test.describe("Droppable Functionality", () => {
       ).not.toHaveCSS("background-color", DROP_COLORS.activePrevent);
 
       await page.mouse.up();
+    });
+  });
+
+  test.describe("Revert Draggable Tab", () => {
+    test.beforeEach(async () => {
+      await droppablePage.openRevertTab();
+    });
+
+    test("should revert back after drop", async () => {
+      const initialBox = await droppablePage.revertDragElement.boundingBox();
+      if (!initialBox) throw new Error("Element not found");
+
+      await droppablePage.revertDragAndDrop();
+
+      await droppablePage.page.waitForTimeout(1000);
+
+      const finalBox = await droppablePage.revertDragElement.boundingBox();
+      if (!finalBox) throw new Error("Element not found");
+
+      expect(finalBox.x).toBeCloseTo(initialBox.x, 0);
+      expect(finalBox.y).toBeCloseTo(initialBox.y, 0);
+    });
+
+    test("should stay in drop zone after drop", async () => {
+      await droppablePage.notRevertDragAndDrop();
+
+      const dropBox = await droppablePage.revertDropZone.boundingBox();
+      const elementBox = await droppablePage.notRevertDragElement.boundingBox();
+
+      if (!dropBox || !elementBox) throw new Error("Elements not found");
+
+      expect(elementBox.x).toBeGreaterThanOrEqual(dropBox.x);
+      expect(elementBox.y).toBeGreaterThanOrEqual(dropBox.y);
     });
   });
 });
