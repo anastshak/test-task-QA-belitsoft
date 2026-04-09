@@ -4,11 +4,17 @@ export const DROP_COLORS = {
   default: "rgb(255, 255, 255)",
   dropped: "rgb(70, 130, 180)",
   hoverAccept: "rgb(60, 179, 113)",
+  hoverPrevent: "rgb(143, 188, 143)",
+  activePrevent: "rgb(60, 179, 113)",
 };
+
 export const DROP_TEXTS = {
+  success: "Dropped!",
   defaultSimple: "Drop Here",
   defaultAccept: "Drop here",
-  success: "Dropped!",
+  outerDefault: "Outer droppable",
+  innerNotGreedyDefault: "Inner droppable (not greedy)",
+  innerGreedyDefault: "Inner droppable (greedy)",
 };
 
 export class DroppablePage {
@@ -17,6 +23,7 @@ export class DroppablePage {
   // tabs
   readonly simpleTab: Locator;
   readonly acceptTab: Locator;
+  readonly preventTab: Locator;
 
   // simple tab elements
   readonly simpleTabContainer: Locator;
@@ -28,6 +35,14 @@ export class DroppablePage {
   readonly acceptDragElement: Locator;
   readonly notAcceptDragElement: Locator;
   readonly acceptDropZone: Locator;
+
+  // accept tab elements
+  readonly preventTabContainer: Locator;
+  readonly preventDragElement: Locator;
+  readonly outerNotGreedyDropZone: Locator;
+  readonly innerNotGreedyDropZone: Locator;
+  readonly outerGreedyDropZone: Locator;
+  readonly innerGreedyDropZone: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -43,6 +58,20 @@ export class DroppablePage {
     this.notAcceptDragElement =
       this.acceptTabContainer.getByText("Not Acceptable");
     this.acceptDropZone = this.acceptTabContainer.locator(".drop-box");
+
+    this.preventTab = page.locator("#droppableExample-tab-preventPropogation");
+    this.preventTabContainer = page.locator("#ppDropContainer");
+    this.preventDragElement = this.preventTabContainer.locator("#dragBox");
+    this.outerNotGreedyDropZone =
+      this.preventTabContainer.locator("#notGreedyDropBox");
+    this.innerNotGreedyDropZone = this.outerNotGreedyDropZone.locator(
+      "#notGreedyInnerDropBox",
+    );
+    this.outerGreedyDropZone =
+      this.preventTabContainer.locator("#greedyDropBox");
+    this.innerGreedyDropZone = this.outerGreedyDropZone.locator(
+      "#greedyDropBoxInner",
+    );
   }
 
   async open() {
@@ -66,7 +95,6 @@ export class DroppablePage {
         x: box.width / 2,
         y: box.height / 2,
       },
-      force: true,
     });
   }
 
@@ -81,5 +109,26 @@ export class DroppablePage {
 
   async notAcceptDragAndDrop() {
     await this.notAcceptDragElement.dragTo(this.acceptDropZone);
+  }
+
+  /* prevent propagation tab */
+  async openPreventTab() {
+    await this.preventTab.click();
+  }
+
+  async outerNotGreedyDragAndDrop() {
+    await this.preventDragElement.dragTo(this.outerNotGreedyDropZone);
+  }
+
+  async innerNotGreedyDragAndDrop() {
+    await this.preventDragElement.dragTo(this.innerNotGreedyDropZone);
+  }
+
+  async outerGreedyDragAndDrop() {
+    await this.preventDragElement.dragTo(this.outerGreedyDropZone);
+  }
+
+  async innerGreedyDragAndDrop() {
+    await this.preventDragElement.dragTo(this.innerGreedyDropZone);
   }
 }

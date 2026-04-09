@@ -57,7 +57,10 @@ test.describe("Droppable Functionality", () => {
 
       await droppablePage.acceptDragAndDrop();
 
-      await expect(droppablePage.acceptDropZone).toHaveText(DROP_TEXTS.success);
+      await expect(droppablePage.acceptDropZone).toHaveText(
+        DROP_TEXTS.success,
+        { timeout: 5000 },
+      );
 
       await expect(droppablePage.acceptDropZone).toHaveCSS(
         "background-color",
@@ -77,10 +80,14 @@ test.describe("Droppable Functionality", () => {
       await droppablePage.notAcceptDragAndDrop();
       await expect(droppablePage.acceptDropZone).toHaveText(
         DROP_TEXTS.defaultAccept,
+        { timeout: 5000 },
       );
 
       await droppablePage.acceptDragAndDrop();
-      await expect(droppablePage.acceptDropZone).toHaveText(DROP_TEXTS.success);
+      await expect(droppablePage.acceptDropZone).toHaveText(
+        DROP_TEXTS.success,
+        { timeout: 5000 },
+      );
     });
 
     test("should change color to green on hover and blue on drop", async ({
@@ -99,6 +106,80 @@ test.describe("Droppable Functionality", () => {
         DROP_COLORS.dropped,
       );
       await expect(droppablePage.acceptDropZone).toHaveText(DROP_TEXTS.success);
+    });
+  });
+
+  test.describe("Prevent Propagation Tab", () => {
+    test.beforeEach(async () => {
+      await droppablePage.openPreventTab();
+    });
+
+    test("Not Greedy (drop - outer): only outer box should register drop", async () => {
+      await droppablePage.outerNotGreedyDragAndDrop();
+
+      await expect(
+        droppablePage.outerNotGreedyDropZone.locator("p").first(),
+      ).toHaveText(DROP_TEXTS.success);
+
+      await expect(droppablePage.innerNotGreedyDropZone).toContainText(
+        DROP_TEXTS.innerNotGreedyDefault,
+      );
+    });
+
+    test("Not Greedy (drop - inner): both boxes should register drop", async () => {
+      await droppablePage.innerNotGreedyDragAndDrop();
+
+      await expect(droppablePage.innerNotGreedyDropZone).toContainText(
+        DROP_TEXTS.success,
+      );
+
+      await expect(droppablePage.outerNotGreedyDropZone).toContainText(
+        DROP_TEXTS.success,
+      );
+    });
+
+    test("Greedy (drop - outer): only outer box should register drop", async () => {
+      await droppablePage.outerGreedyDragAndDrop();
+
+      await expect(droppablePage.outerGreedyDropZone).toContainText(
+        DROP_TEXTS.success,
+      );
+
+      await expect(droppablePage.innerGreedyDropZone).toContainText(
+        DROP_TEXTS.innerGreedyDefault,
+      );
+    });
+
+    test("Greedy (drop - inner): only inner box should register drop", async () => {
+      await droppablePage.innerGreedyDragAndDrop();
+
+      await expect(droppablePage.innerGreedyDropZone).toContainText(
+        DROP_TEXTS.success,
+      );
+
+      await expect(droppablePage.outerGreedyDropZone).toContainText(
+        DROP_TEXTS.outerDefault,
+      );
+    });
+
+    test("should change color only of the target box when hovering in greedy mode", async ({
+      page,
+    }) => {
+      await droppablePage.preventDragElement.hover();
+      await page.mouse.down();
+
+      await droppablePage.innerGreedyDropZone.hover();
+
+      await expect(droppablePage.innerGreedyDropZone).toHaveCSS(
+        "background-color",
+        DROP_COLORS.hoverPrevent,
+      );
+
+      await expect(
+        droppablePage.outerGreedyDropZone.locator("p").first(),
+      ).not.toHaveCSS("background-color", DROP_COLORS.activePrevent);
+
+      await page.mouse.up();
     });
   });
 });
