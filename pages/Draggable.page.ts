@@ -23,6 +23,9 @@ export class DraggablePage {
   readonly textDragElement: Locator;
 
   // cursor style tab elements
+  readonly cursorCenter: Locator;
+  readonly cursorTopLeft: Locator;
+  readonly cursorBottom: Locator;
 
   constructor(page: Page) {
     this.page = page;
@@ -46,6 +49,9 @@ export class DraggablePage {
       this.containerParentWrapper.locator(".ui-widget-header ");
 
     this.cursorTab = page.locator("#draggableExample-tab-cursorStyle");
+    this.cursorCenter = page.locator("#cursorCenter");
+    this.cursorTopLeft = page.locator("#cursorTopLeft");
+    this.cursorBottom = page.locator("#cursorBottom");
   }
 
   async open() {
@@ -57,8 +63,8 @@ export class DraggablePage {
     const box = await element.boundingBox();
     if (!box) throw new Error("Element not found");
 
-    const startX = box.x + 10;
-    const startY = box.y + 10;
+    const startX = box.x + 35;
+    const startY = box.y + 35;
 
     await this.page.mouse.move(startX, startY);
     await this.page.mouse.down();
@@ -101,5 +107,10 @@ export class DraggablePage {
 
   async dragOnlyText(x: number, y: number) {
     await this.dragWithMouse(this.textDragElement, x, y);
+  }
+
+  /* cursor style tab actions */
+  async openCursorTab() {
+    await this.cursorTab.click();
   }
 }

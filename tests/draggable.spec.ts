@@ -14,7 +14,7 @@ test.describe("Draggable Functionality", () => {
       await draggablePage.openSimpleTab();
     });
 
-    test("element should be moved when dragged", async () => {
+    test("element should be moved", async () => {
       const before = await draggablePage.simpleDragElement.boundingBox();
 
       await draggablePage.dragSimple(100, 100);
@@ -90,6 +90,51 @@ test.describe("Draggable Functionality", () => {
 
       expect(after!.x).toBeGreaterThan(before!.x);
       expect(after!.y).toBeGreaterThan(before!.y);
+    });
+  });
+
+  test.describe("Cursor Style Tab", () => {
+    test.beforeEach(async () => {
+      await draggablePage.openCursorTab();
+    });
+
+    test("all cursor style elements should be draggable", async () => {
+      const elements = [
+        draggablePage.cursorCenter,
+        draggablePage.cursorTopLeft,
+        draggablePage.cursorBottom,
+      ];
+
+      for (const el of elements) {
+        const before = await el.boundingBox();
+
+        await draggablePage.dragWithMouse(el, 100, 100);
+
+        const after = await el.boundingBox();
+
+        expect(after!.x).toBeGreaterThan(before!.x);
+        expect(after!.y).toBeGreaterThan(before!.y);
+      }
+    });
+
+    test("cursor styles should result in different final positions", async () => {
+      const center = draggablePage.cursorCenter;
+      const topLeft = draggablePage.cursorTopLeft;
+      const bottom = draggablePage.cursorBottom;
+
+      await draggablePage.dragWithMouse(center, 80, 80);
+      await draggablePage.dragWithMouse(topLeft, 80, 80);
+      await draggablePage.dragWithMouse(bottom, 80, 80);
+
+      const c = await center.boundingBox();
+      const t = await topLeft.boundingBox();
+      const b = await bottom.boundingBox();
+
+      if (!c || !t || !b) throw new Error("Elements not found");
+
+      expect(c.x).not.toBe(t.x);
+      expect(c.y).not.toBe(t.y);
+      expect(c.y).not.toBe(b.y);
     });
   });
 });
