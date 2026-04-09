@@ -13,6 +13,8 @@ export class DraggablePage {
   readonly simpleDragElement: Locator;
 
   // axis restricted tab elements
+  readonly dragXElement: Locator;
+  readonly dragYElement: Locator;
 
   // container restricted tab elements
 
@@ -25,6 +27,8 @@ export class DraggablePage {
     this.simpleDragElement = page.locator("#dragBox");
 
     this.axisTab = page.locator("#draggableExample-tab-axisRestriction");
+    this.dragXElement = page.locator("#restrictedX");
+    this.dragYElement = page.locator("#restrictedY");
 
     this.containerTab = page.locator(
       "#draggableExample-tab-containerRestriction",
@@ -60,5 +64,18 @@ export class DraggablePage {
 
   async dragSimple(x: number, y: number) {
     await this.dragWithMouse(this.simpleDragElement, x, y);
+  }
+
+  /*  axis restricted actions */
+  async openAxisTab() {
+    await this.axisTab.click();
+  }
+
+  async dragX(x: number, y: number) {
+    await this.dragWithMouse(this.dragXElement, x, y);
+  }
+
+  async dragY(x: number, y: number) {
+    await this.dragWithMouse(this.dragYElement, x, y);
   }
 }

@@ -25,4 +25,43 @@ test.describe("Draggable Functionality", () => {
       expect(after?.y).toBeCloseTo((before?.y || 0) + 100, 1);
     });
   });
+
+  test.describe("Axis Restriction Tab", () => {
+    test.beforeEach(async () => {
+      await draggablePage.openAxisTab();
+    });
+
+    test("should move only along X axis", async () => {
+      const before = await draggablePage.dragXElement.boundingBox();
+
+      await draggablePage.dragX(100, 100);
+
+      const after = await draggablePage.dragXElement.boundingBox();
+
+      expect(after!.x).toBeGreaterThan(before!.x);
+      expect(after!.y).toBeCloseTo(before!.y, 0);
+    });
+
+    test("should move only along Y axis", async () => {
+      const before = await draggablePage.dragYElement.boundingBox();
+
+      await draggablePage.dragY(100, 100);
+
+      const after = await draggablePage.dragYElement.boundingBox();
+
+      expect(after!.y).toBeGreaterThan(before!.y);
+      expect(after!.x).toBeCloseTo(before!.x, 0);
+    });
+
+    test("should not move along restricted axis", async () => {
+      const before = await draggablePage.dragXElement.boundingBox();
+
+      await draggablePage.dragX(0, 100);
+
+      const after = await draggablePage.dragXElement.boundingBox();
+
+      expect(after!.x).toBeCloseTo(before!.x, 0);
+      expect(after!.y).toBeCloseTo(before!.y, 0);
+    });
+  });
 });
